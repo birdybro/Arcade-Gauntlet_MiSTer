@@ -287,24 +287,30 @@ wire [1:0] joy_rotate = status[11:10];
 wire [15:0] joy0_final, joy1_final, joy2_final, joy3_final;
 
 always_comb begin : joyRotation
-	case(status[11:10])
-		0: 	joy0_final <= joy0;
-			joy1_final <= joy1;
-			joy2_final <= joy2;
-			joy3_final <= joy3;
-		1:	joy1_final <= joy0;
-			joy2_final <= joy1;
-			joy3_final <= joy2;
-			joy0_final <= joy3;
-		2:	joy2_final <= joy0;
-			joy3_final <= joy1;
-			joy0_final <= joy2;
-			joy1_final <= joy3;
-		3:	joy3_final <= joy0;
-			joy0_final <= joy1;
-			joy1_final <= joy2;
-			joy2_final <= joy3;
-	endcase
+	if (joy_rotate == 0) begin
+		joy0_final <= joy0;
+		joy1_final <= joy1;
+		joy2_final <= joy2;
+		joy3_final <= joy3;
+	end
+	else if (joy_rotate == 1) begin
+		joy1_final <= joy0;
+		joy2_final <= joy1;
+		joy3_final <= joy2;
+		joy0_final <= joy3;
+	end
+	else if (joy_rotate == 2) begin
+		joy2_final <= joy0;
+		joy3_final <= joy1;
+		joy0_final <= joy2;
+		joy1_final <= joy3;
+	end
+	else if (joy_rotate == 3) begin
+		joy3_final <= joy0;
+		joy0_final <= joy1;
+		joy1_final <= joy2;
+		joy2_final <= joy3;
+	end
 end
 
 wire pressed = ps2_key[9];
