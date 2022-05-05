@@ -257,6 +257,7 @@ localparam CONF_STR = {
 	"O89,Aspect ratio,Original,Full Screen,[ARC1],[ARC2];",
 	"O35,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;",
 	"-;",
+	"OAB,Joystick Order,P1-P2-P3-P4,P2-P3-P4-P1,P3-P4-P1-P2,P4-P1-P2-P3;",
 	"DIP;",
 	"-;",
 	"O7,Service,Off,On;",
@@ -281,6 +282,30 @@ pll pll
 
 always @(posedge clk_sys) if (ioctl_wr && (ioctl_index==254) && !ioctl_addr[24:3]) sw[ioctl_addr[2:0]] <= ioctl_dout;
 always @(posedge clk_sys) if (ioctl_wr && (ioctl_index==1)) slap_type <= ioctl_dout;
+
+wire [1:0] joy_rotate = status[11:10];
+wire [15:0] joy0_final, joy1_final, joy2_final, joy3_final;
+
+always_comb begin : joyRotation
+	case(status[11:10])
+		0: 	joy0_final <= joy0;
+			joy1_final <= joy1;
+			joy2_final <= joy2;
+			joy3_final <= joy3;
+		1:	joy1_final <= joy0;
+			joy2_final <= joy1;
+			joy3_final <= joy2;
+			joy0_final <= joy3;
+		2:	joy2_final <= joy0;
+			joy3_final <= joy1;
+			joy0_final <= joy2;
+			joy1_final <= joy3;
+		3:	joy3_final <= joy0;
+			joy0_final <= joy1;
+			joy1_final <= joy2;
+			joy2_final <= joy3;
+	endcase
+end
 
 wire pressed = ps2_key[9];
 always @(posedge clk_sys) begin
@@ -444,10 +469,10 @@ hps_io #(.CONF_STR(CONF_STR)) hps_io
 	.ioctl_index(ioctl_index),
 	.ioctl_wait(ioctl_wait),
 
-	.joystick_0(joy0),
-	.joystick_1(joy1),
-	.joystick_2(joy2),
-	.joystick_3(joy3),
+	.joystick_0(joy0_final),
+	.joystick_1(joy1_final),
+	.joystick_2(joy2_final),
+	.joystick_3(joy3_final),
 	.ps2_key(ps2_key)
 );
 
